@@ -1,12 +1,12 @@
 
-## MXNet Activations Tutorial
+## MXNet Activations Guide
 
-Deep neural networks encode a nonlinear, highly parametrized function from input to outputs. The nonlinearities that allow neural networks to be maximally expressive are referred to as activation functions. Over the course of the development of neural networks, several nonlinear activation functions have been introduced to make gradient-based deep learning tractable. 
+Deep neural networks are a way to express a nonlinear function with lots of parameters from input data to outputs. The nonlinearities that allow neural networks to capture complex patterns in data are referred to as activation functions. Over the course of the development of neural networks, several nonlinear activation functions have been introduced to make gradient-based deep learning tractable. 
 
-If you are looking to answer the question, which activation function should I use for my neural network model you should probably go with *ReLU*. Unless, you're trying to implement something like a gating mechanism, like in LSTMs or GRU cells, then you should opt for sigmoid and/or tanh in those cells. However, if you have a working model architecture and you're trying to improve it's performance by swapping out activation functions or treating the activation function as a hyperparameter, then you may want to try hand-designed activations like SELU or RL discovered functions like Swish. This tutorial describes these activation functions and others implemented in mxnet in detail.
+If you are looking to answer the question, 'which activation function should I use for my neural network model?', you should probably go with *ReLU*. Unless you're trying to implement something like a gating mechanism, like in LSTMs or GRU cells, then you should opt for sigmoid and/or tanh in those cells. However, if you have a working model architecture and you're trying to improve it's performance by swapping out activation functions or treating the activation function as a hyperparameter, then you may want to try hand-designed activations like SELU or a function discovered by reinforcement learning and exhaustive search like Swish. This guide describes these activation functions and others implemented in MXNet in detail.
 
 ### Visualizing Activations
-In order to compare the various activation functions and to understand the nuances of their differences we have a snippet of code to to plot the activation functions and their gradients.
+In order to compare the various activation functions and to understand the nuances of their differences we have a snippet of code to plot the activation functions (used in the forward pass) and their gradients (used in the backward pass).
 
 
 ```python
@@ -42,7 +42,7 @@ $$ \sigma(x) = \dfrac{1}{1 + e^x} $$ or alternatively
 
 $$ \sigma(x) = \dfrac{e^x}{e^x + 1} $$
 
-Note: the term sigmoid is overloaded and can be used to refer to the class of 's' shaped functions or particularly to the logistic function that we've just described. In MxNet the sigmoid activation specifically refers to logistic function sigmoid.
+Warning: the term sigmoid is overloaded and can be used to refer to the class of 's' shaped functions or particularly to the logistic function that we've just described. In MxNet the sigmoid activation specifically refers to logistic function sigmoid.
 
 
 
@@ -54,10 +54,10 @@ visualize_activation(data, gluon.nn.Activation('sigmoid'), "Sigmoid")
 ![png](output_5_0.png)
 
 
-The sigmoid activation has since fallen out of use as the preferred activation function in designing neural networks due to some of it's properties, shown in the plot above, like not being zero-centered and inducing vanishing gradients, that leads to poor performance during neural network training. Vanishing gradients here refers to the tendency of the gradient of the sigmoid function to be nearly zero for most input values. 
+The sigmoid activation has since fallen out of use as the preferred activation function in designing neural networks due to some of its properties, shown in the plot above, like not being zero-centered and inducing vanishing gradients, that leads to poor performance during neural network training. Vanishing gradients here refers to the tendency of the gradient of the sigmoid function to be nearly zero for most input values. 
 
 ### tanh
-The tanh activation function is also an s shaped curve defined by the mathematical equation:
+The tanh, or hyperbolic tangent, activation function is also an s shaped curve albeit one whose output values range from -1 to 1. It is defined by the mathematical equation:
 
 $$ tanh(x) = \dfrac{e^x - e^{-x}}{e^x + e^{-x}}$$ 
 
@@ -82,11 +82,11 @@ visualize_activation(data, gluon.nn.Activation('tanh'), "Tanh")
 ![png](output_8_0.png)
 
 
-The use tanh as activation functions in place of the logistic function was popularized by the success of the [LeNet architecture](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf) and the [methods paper](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf) by LeCun et al
+The use of tanh as activation functions in place of the logistic function was popularized by the success of the [LeNet architecture](http://yann.lecun.com/exdb/publis/pdf/lecun-01a.pdf) and the [methods paper](http://yann.lecun.com/exdb/publis/pdf/lecun-98b.pdf) by LeCun et al
 
 ### SoftSign
 
-The softsign activation is an alternative to tanh that is also centered at zero but converges asymptotically to -1 and 1 polynomially instead of exponentially. As such, there are a greater range of input values for which the softsign assigns an output of between -1 and 1.
+The softsign activation is an alternative to tanh that is also centered at zero but converges asymptotically to -1 and 1 polynomially instead of exponentially. This means that the softsign activation does not saturate as quickly as tanh. As such, there are a greater range of input values for which the softsign assigns an output of strictly between -1 and 1.
 
 $$ softsign(x) = \dfrac{x}{abs(x) + 1} $$
 
@@ -99,12 +99,12 @@ visualize_activation(data, gluon.nn.Activation('softsign'), "SoftSign")
 ![png](output_11_0.png)
 
 
-The softsign function is not a commonly used activation with most neural networks and suffers even more severely from the vanishing gradient problem as seen in the graph above
+The softsign function is not a commonly used activation with most neural networks and still suffers from the vanishing gradient problem as seen in the graph above.
 
 ## Rectifiers
 
 ### ReLU
-ReLU, or Rectified linear unit is the most common activation function in convolutional neural networks and introduces a simple nonlinearity. When the value of the input into ReLU is positive, then it retains the same value. When the value is negative then it becomes zero. In equation form, the ReLU function is given as:
+ReLU, or Rectified Linear Unit is the most common activation function in convolutional neural networks and introduces a simple nonlinearity. When the value of the input into ReLU is positive, then it retains the same value. When the value is negative then it becomes zero. In equation form, the ReLU function is given as:
 
 $$ ReLU(x) = \mathtt{max}(0, x) $$
 
@@ -122,15 +122,15 @@ visualize_activation(data, gluon.nn.Activation('relu'), "ReLU")
 ![png](output_15_0.png)
 
 
-As shown above, the ReLU activation ameliorates the vanishing gradient problem associated with the sigmoid family of activations, by having a larger (infinite) range of values where it's gradient is non-zero.
+As shown above, the ReLU activation mitigates the vanishing gradient problem associated with the sigmoid family of activations, by having a larger (infinite) range of values where it's gradient is non-zero. However, one drawback of ReLU as an activation function is a phenomenon referred to as the 'Dying ReLU', where gradient-based parameter updates can happen in such a way that the gradient flowing through a ReLU unit is always zero and the connection is never activated. This can largely be addressed by ensuring that the tuning the learning rate to ensure that it's not set too large when training ReLU networks.
 
 ### SoftReLU
 
 SoftReLU also known as SmoothReLU or SoftPlus is a nonlinear activation function that takes the form
 
-$$ softReLU(x) = log(1 + e^x)$$
+$$ SoftReLU(x) = log(1 + e^x)$$
 
-The softReLU can be seen as a smooth version of the ReLU by observing that it's derivative is the sigmoid, seen below, which is a smooth version of the gradient of the ReLU shown above
+The SoftReLU can be seen as a smooth version of the ReLU by observing that it's derivative is the sigmoid, seen below, which is a smooth version of the gradient of the ReLU shown above.
 
 
 ```python
@@ -143,32 +143,34 @@ visualize_activation(data, gluon.nn.Activation('softrelu'), "SoftReLU")
 
 ### Leaky ReLU
 
-Leaky ReLUs are a variant of ReLU that allow a small gradient when the value is negative. The equation for the LeakyReLU is:
+Leaky ReLUs are a variant of ReLU that multiply the input by a small positive parameter $\alpha$ when the value is negative. Unlike the ReLU which sets the activation and gradient for negative values to zero, the LeakyReLU allows a small gradient. The equation for the LeakyReLU is:
 
 $$ LeakyReLU(\alpha, x) = \begin{cases}
     x,& \text{if } x\geq 0\\
     \alpha x,              & \text{otherwise}
 \end{cases}$$ 
 
-where $\alpha > 0$ is small positive number. Here is a visualization for the LeakyReLU with $\alpha = 0.01$
+where $\alpha > 0$ is small positive number. In MXNet, by default the $\alpha$ parameter is set to 0.01.
+
+Here is a visualization for the LeakyReLU with $\alpha = 0.05$
 
 
 ```python
-visualize_activation(data, gluon.nn.LeakyReLU(0.01), "LeakyReLU")
+visualize_activation(data, gluon.nn.LeakyReLU(0.05), "LeakyReLU")
 ```
 
 
 ![png](output_20_0.png)
 
 
-As shown in the graph, the LeakyReLU's gradient is non-zero everywhere, in an attempt to address the ReLU's gradient being zero for all negative values
+As shown in the graph, the LeakyReLU's gradient is non-zero everywhere, in an attempt to address the ReLU's gradient being zero for all negative values.
 
 ### PReLU
 The PReLU activation function, or Parametric Leaky ReLU introduced by [He et al](https://arxiv.org/pdf/1502.01852.pdf), is a version of LeakyReLU that learns the parameter $\alpha$ during training. An initialization parameter is passed into the PreLU activation layer and this is treated as a learnable parameter that is updated via gradient descent during training. This is in contrast to LeakyReLU where $\alpha$ is a hyperparameter.
 
 
 ```python
-prelu = gluon.nn.PReLU(mxnet.init.Normal(0.01))
+prelu = gluon.nn.PReLU(mxnet.init.Normal(0.05))
 prelu.initialize()
 visualize_activation(data, prelu, "PReLU")
 ```
@@ -227,7 +229,7 @@ The swish function is given as
 
 $$ swish(x) = x\cdot\sigma(\beta x)$$
 
-where $\sigma$ is the sigmoid activation function $\sigma(x) = \frac{1}{1 + e^{-x}}$ described above and $\beta$ is a hyperparameter set to 1 by default in mxnet
+where $\sigma$ is the sigmoid activation function $\sigma(x) = \frac{1}{1 + e^{-x}}$ described above and $\beta$ is a hyperparameter set to 1 by default in MXNet.
 
 
 ```python
